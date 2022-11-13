@@ -42,5 +42,16 @@ private:
 	Graphics gfx;
 	/********************************/
 	/*  User Variables              */
+	Color* background = new Color[Graphics::ScreenHeight * Graphics::ScreenWidth];
+	int curColor = 0;
+	int curSize = 8;
+
+	static constexpr int penColorSize = 4;
+	Color penColors[4] = {
+		Colors::White,
+		Colors::Green,
+		Colors::Red,
+		Colors::Blue 
+	};
 	/********************************/
 };

@@ -21,11 +21,18 @@
 #include "MainWindow.h"
 #include "Game.h"
 
+#include <iostream>
+#include <string>
+
 Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd )
 {
+	for (size_t i = 0; i < Graphics::ScreenHeight * Graphics::ScreenWidth; i++)
+	{
+		background[i] = Colors::Black;
+	}
 }
 
 void Game::Go()
@@ -38,8 +45,75 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
+	if (wnd.mouse.LeftIsPressed())
+	{
+		for (size_t y = 0; y < curSize; y++)
+		{
+			for (size_t x = 0; x < curSize; x++)
+			{
+				background[(wnd.mouse.GetPosY() + y )* Graphics::ScreenWidth + wnd.mouse.GetPosX() + x] = penColors[curColor];
+			}
+		}
+	}
+
+	while (!wnd.kbd.KeyIsEmpty())
+	{
+		const Keyboard::Event e = wnd.kbd.ReadKey();
+
+		if (e.IsRelease())
+		{
+			if (e.GetCode() == 'R')
+			{
+				for (size_t i = 0; i < Graphics::ScreenHeight * Graphics::ScreenWidth; i++)
+				{
+					background[i] = Colors::Black;
+				}
+			}
+			
+			else if (e.GetCode() == 'C')
+			{
+				if (++curColor >= penColorSize)
+				{
+					curColor = 0;
+				}
+			}
+
+			else if (e.GetCode() == VK_UP)
+			{
+				if (++curSize > 16)
+				{
+					curSize = 16;
+				}
+			}
+
+			else if (e.GetCode() == VK_DOWN)
+			{
+				if (--curSize < 1)
+				{
+					curSize = 1;
+				}
+			}
+		}
+	}
+
 }
 
 void Game::ComposeFrame()
 {
+	for (size_t y = 0; y < Graphics::ScreenHeight; y++)
+	{
+		for (size_t x = 0; x < Graphics::ScreenWidth; x++)
+		{
+			gfx.PutPixel(x, y, background[y * Graphics::ScreenWidth + x]);
+		}
+	}
+
+
+	for (size_t y = 0; y < curSize; y++)
+	{
+		for (size_t x = 0; x < curSize; x++)
+		{
+			gfx.PutPixel(20 + x, 20 + y, penColors[curColor]);
+		}
+	}
 }
