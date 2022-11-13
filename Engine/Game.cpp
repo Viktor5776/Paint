@@ -1,5 +1,5 @@
-/****************************************************************************************** 
- *	Chili DirectX Framework Version 16.07.20											  *	
+/******************************************************************************************
+ *	Chili DirectX Framework Version 16.07.20											  *
  *	Game.cpp																			  *
  *	Copyright 2016 PlanetChili.net <http://www.planetchili.net>							  *
  *																						  *
@@ -21,10 +21,10 @@
 #include "MainWindow.h"
 #include "Game.h"
 
-Game::Game( MainWindow& wnd )
+Game::Game(MainWindow& wnd)
 	:
-	wnd( wnd ),
-	gfx( wnd )
+	wnd(wnd),
+	gfx(wnd)
 {
 	for (size_t i = 0; i < Graphics::ScreenHeight * Graphics::ScreenWidth; i++)
 	{
@@ -34,7 +34,7 @@ Game::Game( MainWindow& wnd )
 
 void Game::Go()
 {
-	gfx.BeginFrame();	
+	gfx.BeginFrame();
 	UpdateModel();
 	ComposeFrame();
 	gfx.EndFrame();
@@ -59,7 +59,7 @@ void Game::UpdateModel()
 					endPos.x += x;
 					endPos.y += y;
 
-					DrawLine(startPos, endPos, penColors[curColor]);
+					DrawLine(startPos, endPos, Color((startPos.x / 800) * 255, (startPos.y / 600) * 255, rand() % 255));
 				}
 			}
 		}
@@ -86,6 +86,16 @@ void Game::UpdateModel()
 			}
 		}
 	}
+	if (wnd.kbd.KeyIsPressed(VK_SPACE))
+	{
+		for (size_t y = 0; y < Graphics::ScreenHeight; y++)
+		{
+			for (size_t x = 0; x < Graphics::ScreenWidth; x++)
+			{
+				GetBackground(x, y) = Color((float(x) / 800) * 255, (float(y) / 600) * 255, rand() % 255);
+			}
+		}
+	}
 
 	while (!wnd.kbd.KeyIsEmpty())
 	{
@@ -100,7 +110,7 @@ void Game::UpdateModel()
 					background[i] = Colors::Black;
 				}
 			}
-			
+
 			else if (e.GetCode() == 'C')
 			{
 				if (++curColor >= penColorSize)
@@ -149,6 +159,7 @@ void Game::UpdateModel()
 			curSize = 11;
 		}
 	}
+
 
 	lastMousePos = wnd.mouse.GetPos();
 }
@@ -214,7 +225,7 @@ void Game::DrawLine(Vec2 v1, Vec2 v2, Color c)
 
 Color& Game::GetBackground(int x, int y)
 {
-	x >= Graphics::ScreenWidth ? x = Graphics::ScreenWidth - 1: 0;
+	x >= Graphics::ScreenWidth ? x = Graphics::ScreenWidth - 1 : 0;
 
 	x < 0 ? x = 0 : 0;
 
@@ -231,19 +242,7 @@ void Game::ComposeFrame()
 	{
 		for (size_t x = 0; x < Graphics::ScreenWidth; x++)
 		{
-			gfx.PutPixel(x, y, GetBackground(x,y));
-		}
-	}
-
-
-	for (int y = -curSize / 2; y < curSize / 2; y++)
-	{
-		for (int x = -curSize / 2; x < curSize / 2; x++)
-		{
-			if (x * x + y * y < curSize / 2)
-			{
-				gfx.PutPixel(50 + x, 50 + y, penColors[curColor]);
-			}
+			gfx.PutPixel(x, y, GetBackground(x, y));
 		}
 	}
 }
