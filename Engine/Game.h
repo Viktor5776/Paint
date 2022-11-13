@@ -37,6 +37,7 @@ private:
 	/********************************/
 	/*  User Functions              */
 	void DrawLine(Vec2, Vec2, Color);
+	Color& GetBackground(int x, int y);
 	/********************************/
 private:
 	MainWindow& wnd;

@@ -166,7 +166,7 @@ void Game::DrawLine(Vec2 v1, Vec2 v2, Color c)
 
 	if (dy == 0.0f && dx == 0.0f)
 	{
-		background[int(y1) * Graphics::ScreenWidth + int(x1)] = c;
+		GetBackground(int(x1), int(y1)) = c;
 	}
 	else if (abs(dy) > abs(dx))
 	{
@@ -182,11 +182,11 @@ void Game::DrawLine(Vec2 v1, Vec2 v2, Color c)
 		for (float x = x1; y < y2; y += 1.0f, x += m)
 		{
 			lastIntY = int(y);
-			background[lastIntY * Graphics::ScreenWidth + int(x1)] = c;
+			GetBackground(int(x), lastIntY) = c;
 		}
 		if (int(y2) > lastIntY)
 		{
-			background[int(y2) * Graphics::ScreenWidth + int(x2)] = c;
+			GetBackground(int(x2), int(y2));
 		}
 	}
 	else
@@ -203,13 +203,26 @@ void Game::DrawLine(Vec2 v1, Vec2 v2, Color c)
 		for (float y = y1; x < x2; x += 1.0f, y += m)
 		{
 			lastIntX = int(x);
-			background[int(y) * Graphics::ScreenWidth + lastIntX] = c;
+			GetBackground(lastIntX, int(y)) = c;
 		}
 		if (int(x2) > lastIntX)
 		{
-			background[int(y2) * Graphics::ScreenWidth + int(x2)] = c;
+			GetBackground(int(x2), int(y2)) = c;
 		}
 	}
+}
+
+Color& Game::GetBackground(int x, int y)
+{
+	x >= Graphics::ScreenWidth ? x = Graphics::ScreenWidth - 1: 0;
+
+	x < 0 ? x = 0 : 0;
+
+	y >= Graphics::ScreenHeight ? y = Graphics::ScreenHeight - 1 : 0;
+
+	y < 0 ? y = 0 : 0;
+
+	return background[y * Graphics::ScreenWidth + x];
 }
 
 void Game::ComposeFrame()
@@ -218,7 +231,7 @@ void Game::ComposeFrame()
 	{
 		for (size_t x = 0; x < Graphics::ScreenWidth; x++)
 		{
-			gfx.PutPixel(x, y, background[y * Graphics::ScreenWidth + x]);
+			gfx.PutPixel(x, y, GetBackground(x,y));
 		}
 	}
 
