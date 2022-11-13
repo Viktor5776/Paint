@@ -21,9 +21,6 @@
 #include "MainWindow.h"
 #include "Game.h"
 
-#include <iostream>
-#include <string>
-
 Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
@@ -47,11 +44,45 @@ void Game::UpdateModel()
 {
 	if (wnd.mouse.LeftIsPressed())
 	{
-		for (size_t y = 0; y < curSize; y++)
+		for (int y = -curSize / 2; y < curSize / 2; y++)
 		{
-			for (size_t x = 0; x < curSize; x++)
+			for (int x = -curSize / 2; x < curSize / 2; x++)
 			{
-				background[(wnd.mouse.GetPosY() + y )* Graphics::ScreenWidth + wnd.mouse.GetPosX() + x] = penColors[curColor];
+				if (x * x + y * y < curSize / 2)
+				{
+					Vec2 startPos = wnd.mouse.GetPos();
+					Vec2 endPos = lastMousePos;
+
+					startPos.x += x;
+					startPos.y += y;
+
+					endPos.x += x;
+					endPos.y += y;
+
+					DrawLine(startPos, endPos, penColors[curColor]);
+				}
+			}
+		}
+	}
+	else if (wnd.mouse.RightIsPressed())
+	{
+		for (int y = -curSize / 2; y < curSize / 2; y++)
+		{
+			for (int x = -curSize / 2; x < curSize / 2; x++)
+			{
+				if (x * x + y * y < curSize / 2)
+				{
+					Vec2 startPos = wnd.mouse.GetPos();
+					Vec2 endPos = lastMousePos;
+
+					startPos.x += x;
+					startPos.y += y;
+
+					endPos.x += x;
+					endPos.y += y;
+
+					DrawLine(startPos, endPos, Colors::Black);
+				}
 			}
 		}
 	}
@@ -80,9 +111,9 @@ void Game::UpdateModel()
 
 			else if (e.GetCode() == VK_UP)
 			{
-				if (++curSize > 16)
+				if (++curSize > 2500)
 				{
-					curSize = 16;
+					curSize = 2500;
 				}
 			}
 
@@ -95,7 +126,90 @@ void Game::UpdateModel()
 			}
 		}
 	}
+	if (wnd.kbd.KeyIsPressed(VK_UP) && curSize >= 10)
+	{
+		if (curSize > 2500)
+		{
+			curSize = 2500;
+		}
+		else
+		{
+			curSize = curSize * 1.2;
+			if (curSize > 2500)
+			{
+				curSize = 2500;
+			}
+		}
+	}
+	else if (wnd.kbd.KeyIsPressed(VK_DOWN) && curSize >= 10)
+	{
+		curSize = curSize * 0.8;
+		if (curSize < 10)
+		{
+			curSize = 11;
+		}
+	}
 
+	lastMousePos = wnd.mouse.GetPos();
+}
+
+void Game::DrawLine(Vec2 v1, Vec2 v2, Color c)
+{
+	float x1 = v1.x;
+	float x2 = v2.x;
+	float y1 = v1.y;
+	float y2 = v2.y;
+
+
+	const float dx = x2 - x1;
+	const float dy = y2 - y1;
+
+	if (dy == 0.0f && dx == 0.0f)
+	{
+		background[int(y1) * Graphics::ScreenWidth + int(x1)] = c;
+	}
+	else if (abs(dy) > abs(dx))
+	{
+		if (dy < 0.0f)
+		{
+			std::swap(x1, x2);
+			std::swap(y1, y2);
+		}
+
+		const float m = dx / dy;
+		float y = y1;
+		int lastIntY;
+		for (float x = x1; y < y2; y += 1.0f, x += m)
+		{
+			lastIntY = int(y);
+			background[lastIntY * Graphics::ScreenWidth + int(x1)] = c;
+		}
+		if (int(y2) > lastIntY)
+		{
+			background[int(y2) * Graphics::ScreenWidth + int(x2)] = c;
+		}
+	}
+	else
+	{
+		if (dx < 0.0f)
+		{
+			std::swap(x1, x2);
+			std::swap(y1, y2);
+		}
+
+		const float m = dy / dx;
+		float x = x1;
+		int lastIntX;
+		for (float y = y1; x < x2; x += 1.0f, y += m)
+		{
+			lastIntX = int(x);
+			background[int(y) * Graphics::ScreenWidth + lastIntX] = c;
+		}
+		if (int(x2) > lastIntX)
+		{
+			background[int(y2) * Graphics::ScreenWidth + int(x2)] = c;
+		}
+	}
 }
 
 void Game::ComposeFrame()
@@ -109,11 +223,14 @@ void Game::ComposeFrame()
 	}
 
 
-	for (size_t y = 0; y < curSize; y++)
+	for (int y = -curSize / 2; y < curSize / 2; y++)
 	{
-		for (size_t x = 0; x < curSize; x++)
+		for (int x = -curSize / 2; x < curSize / 2; x++)
 		{
-			gfx.PutPixel(20 + x, 20 + y, penColors[curColor]);
+			if (x * x + y * y < curSize / 2)
+			{
+				gfx.PutPixel(50 + x, 50 + y, penColors[curColor]);
+			}
 		}
 	}
 }

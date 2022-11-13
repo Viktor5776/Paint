@@ -36,6 +36,7 @@ private:
 	void UpdateModel();
 	/********************************/
 	/*  User Functions              */
+	void DrawLine(Vec2, Vec2, Color);
 	/********************************/
 private:
 	MainWindow& wnd;
@@ -44,7 +45,7 @@ private:
 	/*  User Variables              */
 	Color* background = new Color[Graphics::ScreenHeight * Graphics::ScreenWidth];
 	int curColor = 0;
-	int curSize = 8;
+	int curSize = 10;
 
 	static constexpr int penColorSize = 4;
 	Color penColors[4] = {
@@ -53,5 +54,7 @@ private:
 		Colors::Red,
 		Colors::Blue 
 	};
+
+	Vec2 lastMousePos {0,0};
 	/********************************/
 };
