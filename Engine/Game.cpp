@@ -59,7 +59,7 @@ void Game::UpdateModel()
 					endPos.x += x;
 					endPos.y += y;
 
-					DrawLine(startPos, endPos, Color((startPos.x / 800) * 255, (startPos.y / 600) * 255, rand() % 255));
+					DrawLine(startPos, endPos, colorFunction(startPos.x, startPos.y));
 				}
 			}
 		}
@@ -92,7 +92,7 @@ void Game::UpdateModel()
 		{
 			for (size_t x = 0; x < Graphics::ScreenWidth; x++)
 			{
-				GetBackground(x, y) = Color((float(x) / 800) * 255, (float(y) / 600) * 255, rand() % 255);
+				GetBackground(x, y) = colorFunction(x, y);
 			}
 		}
 	}

@@ -23,6 +23,7 @@
 #include "Keyboard.h"
 #include "Mouse.h"
 #include "Graphics.h"
+#include <functional>
 
 class Game
 {
@@ -57,5 +58,9 @@ private:
 	};
 
 	Vec2 lastMousePos {0,0};
+
+	std::function<Color(int x, int y)> colorFunction = [](int x, int y) {
+		return Color(((float)y / 600) * 255, rand() % 192 + 64, ((float)x / 800) * 255);
+	};
 	/********************************/
 };
