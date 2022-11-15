@@ -44,47 +44,11 @@ void Game::UpdateModel()
 {
 	if (wnd.mouse.LeftIsPressed())
 	{
-		for (int y = -curSize / 2; y < curSize / 2; y++)
-		{
-			for (int x = -curSize / 2; x < curSize / 2; x++)
-			{
-				if (x * x + y * y < curSize / 2)
-				{
-					Vec2 startPos = wnd.mouse.GetPos();
-					Vec2 endPos = lastMousePos;
-
-					startPos.x += x;
-					startPos.y += y;
-
-					endPos.x += x;
-					endPos.y += y;
-
-					DrawLine(startPos, endPos, penColors[curColor]);
-				}
-			}
-		}
+		BrushLogic(penColors[curColor]);
 	}
 	else if (wnd.mouse.RightIsPressed())
 	{
-		for (int y = -curSize / 2; y < curSize / 2; y++)
-		{
-			for (int x = -curSize / 2; x < curSize / 2; x++)
-			{
-				if (x * x + y * y < curSize / 2)
-				{
-					Vec2 startPos = wnd.mouse.GetPos();
-					Vec2 endPos = lastMousePos;
-
-					startPos.x += x;
-					startPos.y += y;
-
-					endPos.x += x;
-					endPos.y += y;
-
-					DrawLine(startPos, endPos, Colors::Black);
-				}
-			}
-		}
+		BrushLogic(Colors::Black);
 	}
 
 	while (!wnd.kbd.KeyIsEmpty())
@@ -151,6 +115,90 @@ void Game::UpdateModel()
 	}
 
 	lastMousePos = wnd.mouse.GetPos();
+}
+
+void Game::BrushLogic(Color c)
+{
+	if (wnd.kbd.KeyIsPressed(VK_SHIFT))
+	{
+		if (lineDir == 0)
+		{
+			Vec2 startPos = wnd.mouse.GetPos();
+			Vec2 endPos = lastMousePos;
+
+			float dx = (startPos.x - endPos.x) * (startPos.x - endPos.x);
+			float dy = (startPos.y - endPos.y) * (startPos.y - endPos.y);
+			if (dx == dy)
+			{
+				return;
+			}
+
+			if (dx > dy)
+			{
+				lineDir = 1; 
+				stuckCordinate = startPos.y;
+			}
+			else
+			{
+				lineDir = -1;
+				stuckCordinate = startPos.x;
+			}
+		}
+
+		for (int y = -curSize / 2; y < curSize / 2; y++)
+		{
+			for (int x = -curSize / 2; x < curSize / 2; x++)
+			{
+				if (x* x + y * y < curSize / 2)
+				{
+					Vec2 startPos = wnd.mouse.GetPos();
+					Vec2 endPos = lastMousePos;
+
+					if (lineDir > 0)
+					{
+						startPos.y = stuckCordinate;
+						endPos.y = stuckCordinate;
+					}
+					else
+					{
+						startPos.x = stuckCordinate;
+						endPos.x = stuckCordinate;
+					}
+
+					startPos.x += x;
+					startPos.y += y;
+
+					endPos.x += x;
+					endPos.y += y;
+
+					DrawLine(startPos, endPos, c);
+				}
+			}
+		}
+	}
+	else
+	{
+		for (int y = -curSize / 2; y < curSize / 2; y++)
+		{
+			for (int x = -curSize / 2; x < curSize / 2; x++)
+			{
+				if (x * x + y * y < curSize / 2)
+				{
+					Vec2 startPos = wnd.mouse.GetPos();
+					Vec2 endPos = lastMousePos;
+
+					startPos.x += x;
+					startPos.y += y;
+
+					endPos.x += x;
+					endPos.y += y;
+
+					DrawLine(startPos, endPos, c);
+				}
+			}
+		}
+		lineDir = 0;
+	}
 }
 
 void Game::DrawLine(Vec2 v1, Vec2 v2, Color c)

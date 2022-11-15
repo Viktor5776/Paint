@@ -34,10 +34,12 @@ public:
 private:
 	void ComposeFrame();
 	void UpdateModel();
+	void BrushLogic();
 	/********************************/
 	/*  User Functions              */
 	void DrawLine(Vec2, Vec2, Color);
 	Color& GetBackground(int x, int y);
+	void BrushLogic(Color c);
 	/********************************/
 private:
 	MainWindow& wnd;
@@ -57,5 +59,8 @@ private:
 	};
 
 	Vec2 lastMousePos {0,0};
+
+	int lineDir = 0;
+	float stuckCordinate = 0;
 	/********************************/
 };
