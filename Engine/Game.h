@@ -34,7 +34,6 @@ public:
 private:
 	void ComposeFrame();
 	void UpdateModel();
-	void BrushLogic();
 	/********************************/
 	/*  User Functions              */
 	void DrawLine(Vec2, Vec2, Color);
@@ -47,15 +46,22 @@ private:
 	/********************************/
 	/*  User Variables              */
 	Color* background = new Color[Graphics::ScreenHeight * Graphics::ScreenWidth];
-	int curColor = 0;
+
+	bool showColorPallet = false;
+
+	Color curColor = Colors::White;
 	int curSize = 10;
 
-	static constexpr int penColorSize = 4;
-	Color penColors[4] = {
-		Colors::White,
-		Colors::Green,
+	static constexpr int penColorSize = 8;
+	Color penColors[penColorSize] = {
+		Colors::Yellow,
+		Colors::Orange,
 		Colors::Red,
-		Colors::Blue 
+		Colors::Magenta,
+		Colors::Blue,
+		Colors::Cyan,
+		Colors::Green,
+		Colors::White
 	};
 
 	Vec2 lastMousePos {0,0};

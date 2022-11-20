@@ -35,8 +35,8 @@ Game::Game( MainWindow& wnd )
 void Game::Go()
 {
 	gfx.BeginFrame();	
-	UpdateModel();
 	ComposeFrame();
+	UpdateModel();
 	gfx.EndFrame();
 }
 
@@ -44,12 +44,15 @@ void Game::UpdateModel()
 {
 	if (wnd.mouse.LeftIsPressed())
 	{
-		BrushLogic(penColors[curColor]);
+		BrushLogic(curColor);
 	}
 	else if (wnd.mouse.RightIsPressed())
 	{
 		BrushLogic(Colors::Black);
 	}
+
+	showColorPallet = wnd.kbd.KeyIsPressed('C');
+	
 
 	while (!wnd.kbd.KeyIsEmpty())
 	{
@@ -64,53 +67,31 @@ void Game::UpdateModel()
 					background[i] = Colors::Black;
 				}
 			}
-			
-			else if (e.GetCode() == 'C')
-			{
-				if (++curColor >= penColorSize)
-				{
-					curColor = 0;
-				}
-			}
 
-			else if (e.GetCode() == VK_UP)
+			if (e.GetCode() == 'Q')
 			{
-				if (++curSize > 2500)
-				{
-					curSize = 2500;
-				}
-			}
-
-			else if (e.GetCode() == VK_DOWN)
-			{
-				if (--curSize < 1)
-				{
-					curSize = 1;
-				}
+				curColor = gfx.GetPixel(wnd.mouse.GetPosX(), wnd.mouse.GetPosY());
 			}
 		}
 	}
-	if (wnd.kbd.KeyIsPressed(VK_UP) && curSize >= 10)
+
+	while (!wnd.mouse.IsEmpty())
 	{
-		if (curSize > 2500)
+		const Mouse::Event e = wnd.mouse.Read();
+
+		if (e.GetType() == Mouse::Event::Type::WheelUp)
 		{
-			curSize = 2500;
-		}
-		else
-		{
-			curSize = curSize * 1.2;
-			if (curSize > 2500)
+			if (++curSize > 100)
 			{
-				curSize = 2500;
+				curSize = 100;
 			}
 		}
-	}
-	else if (wnd.kbd.KeyIsPressed(VK_DOWN) && curSize >= 10)
-	{
-		curSize = curSize * 0.8;
-		if (curSize < 10)
+		else if (e.GetType() == Mouse::Event::Type::WheelDown)
 		{
-			curSize = 11;
+			if (--curSize < 2)
+			{
+				curSize = 2;
+			}
 		}
 	}
 
@@ -149,7 +130,7 @@ void Game::BrushLogic(Color c)
 		{
 			for (int x = -curSize / 2; x < curSize / 2; x++)
 			{
-				if (x* x + y * y < curSize / 2)
+				if (x* x + y * y < (curSize / 2) * (curSize / 2))
 				{
 					Vec2 startPos = wnd.mouse.GetPos();
 					Vec2 endPos = lastMousePos;
@@ -182,7 +163,7 @@ void Game::BrushLogic(Color c)
 		{
 			for (int x = -curSize / 2; x < curSize / 2; x++)
 			{
-				if (x * x + y * y < curSize / 2)
+				if (x * x + y * y < (curSize / 2) * (curSize / 2))
 				{
 					Vec2 startPos = wnd.mouse.GetPos();
 					Vec2 endPos = lastMousePos;
@@ -275,22 +256,70 @@ Color& Game::GetBackground(int x, int y)
 
 void Game::ComposeFrame()
 {
+	//Draw Image
 	for (size_t y = 0; y < Graphics::ScreenHeight; y++)
 	{
 		for (size_t x = 0; x < Graphics::ScreenWidth; x++)
 		{
-			gfx.PutPixel(x, y, GetBackground(x,y));
+				gfx.PutPixel(x, y, GetBackground(x, y));
+		}
+	}
+	
+	//Draw Color Pallet
+	if (showColorPallet)
+	{
+		for (int i = 0; i < penColorSize; i++)
+		{
+			if (wnd.kbd.KeyIsPressed(VK_CONTROL))
+			{
+				int nVariens = 5;
+
+				for (int j = 0; j < nVariens; j++)
+				{
+					float alpha = float(1) / float(nVariens);
+					alpha *= j;
+
+					Color a = penColors[i];
+					Color b = Colors::Black;
+
+					int red = int(a.GetR() * (1 - alpha) + b.GetR() * alpha);
+					int green = int(a.GetG() * (1 - alpha) + b.GetG() * alpha);
+					int blue = int(a.GetB() * (1 - alpha) + b.GetB() * alpha);
+
+					Color c = Color(red, green, blue);
+
+					for (size_t y = 0; y < 25; y++)
+					{
+						for (size_t x = 0; x < 25; x++)
+						{
+							
+							gfx.PutPixel(Graphics::ScreenWidth - x - 25 - 40 * i, y + 25 + 40 * j, c);
+						}
+					}
+				}
+			}
+			else
+			{
+				for (size_t y = 0; y < 25; y++)
+				{
+					for (size_t x = 0; x < 25; x++)
+					{
+						gfx.PutPixel(Graphics::ScreenWidth - x - 25 - 40 * i, y + 25, penColors[i]);
+					}
+				}
+
+			}
 		}
 	}
 
-
+	//Draw Preview of cursor
 	for (int y = -curSize / 2; y < curSize / 2; y++)
 	{
 		for (int x = -curSize / 2; x < curSize / 2; x++)
 		{
-			if (x * x + y * y < curSize / 2)
+			if (x * x + y * y < (curSize / 2) * (curSize / 2))
 			{
-				gfx.PutPixel(50 + x, 50 + y, penColors[curColor]);
+				gfx.PutPixel(50 + x, 50 + y, curColor);
 			}
 		}
 	}
